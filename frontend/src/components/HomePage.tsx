@@ -1,97 +1,99 @@
-import React, {useEffect, useState } from 'react';
+import { SyntheticEvent, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
+
 
 interface HomePageProps {
 	children: React.ReactNode;
 }
 
+type Note = {
+	id: number;
+	note: string;
+};
+	
+
 function HomePage({ children }: HomePageProps) {
 
-	let [notes, setNotes] = useState<string[]>([]);
-	let [currentNote, setCurrentNote] = useState<string>('');
+	let [newNoteInput, setNewNoteInput] = useState('');
 
-
-	useEffect(() => {
-		getNotes();
+	const queryClient = useQueryClient();
+	const Notes = useQuery<Array<Note>>(['notes'], 
+		() => {
+			return fetch('http://localhost:3000/getNotes')
+			.then((response) => response.json())
+			.then((data) => data)
+			.catch((error) => {
+			console.error('Error:', error);
+		});
+		}, {
+		placeholderData: [],
 	});
-
-
-
-	const getNotes = () => {
-		fetch('http://localhost:3000/getNotes')
-		.then((response) => response.json())
-		.then((data) => {
-			setNotes(data);
-		})
-		.catch((error) => {
-			console.error('Error:', error);
-		});
-	}
-
-
-	// Function to handle adding a new note
-	const addNote = () => {
-		if (currentNote.trim() !== '') {
-		fetch('http://localhost:3000/addNote', {
+	const addMutation = useMutation((formData: string) => {
+		console.log(formData)
+		return fetch('http://localhost:3000/addNote', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
 		},
-		body: JSON.stringify({ note: currentNote }), // Send the note data in the request body
-		})
-		.then((response) => response.json())
-		.then((data) => {
-			setNotes(data);
-		})
-		.catch((error) => {
-			console.error('Error:', error);
-		});
-		setCurrentNote('');
+		body: JSON.stringify({ note: newNoteInput})})
+			.then((response) => response.json())
+		},
+		{
+			onSuccess: (data) => {
+				queryClient.setQueryData(['notes'], () => data);
+				setNewNoteInput('');
+			}
 		}
-	};
+	);
 
-
-	// Function to handle deleting a note
-	const deleteNote = (index: number) => {
-		fetch('http://localhost:3000/removeNote', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
+	const delMutation = useMutation((id: number) => {
+		return fetch(`http://localhost:3000/removeNote?id=${id}`)
+			.then((response) => response.json())
 		},
-		body: JSON.stringify({ index: index }), // Send the note data in the request body
-		})
-		.then((response) => response.json())
-		.then((data) => {
-			setNotes(data);
-		})
-		.catch((error) => {
-			console.error('Error:', error);
-		});
-		setCurrentNote('');
+		{
+			onSuccess: (data) => {
+				queryClient.setQueryData(['notes'], () => data);
+			}
+		}
+	);
+
+	const onSubmit = (event: SyntheticEvent) => {
+		event.preventDefault();
+		console.log(event.target)
+		addMutation.mutate(newNoteInput);
 	};
 
+	const onDelete = (id: number) => {
+		delMutation.mutate(id);
+	};
+
+	if (!Notes.data) return (<div>Loading...</div>);
+	
+	const notes = Notes.data.map((note) => (
+		<div key={note.id} className="post-it">
+			<p><strong>Note</strong></p>
+			<p>{note.note}</p>
+			<button className="delete-button" onClick={() => onDelete(note.id)}>
+			&#10006; {/* HTML entity for "x" symbol */}
+			</button>
+		</div>
+	));
 	
 
 	return (
     <div className="homepage">
       <h1>My Notes</h1>
-      <div className="note-input">
+      <form className="note-input" onSubmit={onSubmit}>
         <textarea
+		  name="note"
           placeholder="Write your note here..."
-          value={currentNote}
-          onChange={(e) => setCurrentNote(e.target.value)}
+		  value={newNoteInput}
+		  onChange={(event) => setNewNoteInput(event.target.value)}
         />
-        <button onClick={addNote}>Add Note</button>
-      </div>
+        <button type="submit">Add Note</button>
+      </form>
       <div className="note-list">
-        {notes.map((note, index) => (
-			<div key={index} className="post-it">
-				<p><strong>Note</strong></p>
-				<p>{note}</p>
-				<button className="delete-button" onClick={() => deleteNote(index)}>
-				&#10006; {/* HTML entity for "x" symbol */}
-				</button>
-			</div>
-        ))}
+        {notes}
       </div>
     </div>
   );

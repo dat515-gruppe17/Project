@@ -10,33 +10,31 @@ app.use(bodyParser.json());
 const PORT = 3000;
 
 // Global variables
-const notes = [];
+let notes = [];
+let noteId = 0;
     
 app.get('/', (req, res) => {
     res.send('Hello, World!');
 });
 
 app.get('/getNotes', (req, res) => {
-    console.log("getNotes");
     return res.send(notes);
 });
 
 
 
 app.post('/addNote', (req, res) => {
-    form = req.body;
-    if (typeof(form.note) == "string") {
-        notes.push(form.note);
-    }
+    note = req.body;
+    notes.push({note: note.note, id: noteId});
+    noteId++;
     return res.send(notes);
 });
 
 
-app.post('/removeNote', (req, res) => {
-    form = req.body;
-    if (typeof(form.index) == "number") {
-		notes.splice(form.index, 1);
-    }
+app.get('/removeNote', (req, res) => {
+    let id = req.query.id;
+    id = parseInt(id);
+    notes = notes.filter((note) => note.id !== id);
     return res.send(notes);
 });
 
