@@ -1,3 +1,4 @@
+
 import HomePage from './components/HomePage';
 
 function App() {
@@ -5,7 +6,7 @@ function App() {
 
   return (
     <>
-      <div>
+      <div className='flex justify-center'>
         <HomePage />
       </div>
 
