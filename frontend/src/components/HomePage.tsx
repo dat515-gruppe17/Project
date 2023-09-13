@@ -87,7 +87,7 @@ function HomePage() {
 		  value={newNoteInput}
 		  onChange={(event) => setNewNoteInput(event.target.value)}
         />
-        <button type="submit">Add Noteeeee</button>
+        <button type="submit">Add Notee asdsadsad</button>
       </form>
       <div className="note-list">
         {notes}
