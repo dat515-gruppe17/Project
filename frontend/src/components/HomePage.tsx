@@ -64,32 +64,35 @@ function HomePage() {
 	};
 
 	if (!Notes.data) return (<div>Loading...</div>);
-	
-	const notes = Notes.data.map((note) => (
-		<div key={note.id} className="post-it">
-			<img className="w-10 h-10" src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAA5JREFUeNpiYGBgAAgwAAAEAAGbA+oJAAAAAElFTkSuQmCC" />
+	const randomRotations = ['rotate-[-7deg]', 'rotate-[-6deg]', 'rotate-[-5deg]', 'rotate-[-4deg]', 'rotate-[-3deg]', 'rotate-[-2deg]', 'rotate-[-1deg]', 'rotate-[1deg]', 'rotate-[2deg]', 'rotate-[3deg]', 'rotate-[4deg]', 'rotate-[5deg]', 'rotate-[6deg]', 'rotate-[7deg]'];
+	const notes = Notes.data.map((note) => {
+		
+		const rotation = randomRotations[Math.floor(Math.random() * randomRotations.length)];
+		return (
+		<div key={note.id} className={`col-span-1 w-60 h-60 relative bg-yellow-200 drop-shadow-xl m-2 p-2 rounded-bl-[45px] ${rotation}`}>
 			<p><strong>Note</strong></p>
 			<p>{note.note}</p>
 			<button className="delete-button" onClick={() => onDelete(note.id)}>
 			&#10006; {/* HTML entity for "x" symbol */}
 			</button>
 		</div>
-	));
+	)});
 	
 
 	return (
-    <div className="homepage">
-      <h1>My Notes</h1>
-      <form className="note-input" onSubmit={onSubmit}>
+    <div className="flex flex-col items-center w-full">
+      <h1 className='text-2xl font-bold text-center'>My Notes</h1>
+      <form className="p-2 flex w-96 content-center items-center" onSubmit={onSubmit}>
         <textarea
+		className='border-2 rounded w-full h-20'
 		  name="note"
           placeholder="Write your note here..."
 		  value={newNoteInput}
 		  onChange={(event) => setNewNoteInput(event.target.value)}
         />
-        <button type="submit">Add Noteeeee</button>
+        <button type="submit" className='border-2 rounded w-32 h-10'>Add Note</button>
       </form>
-      <div className="note-list">
+      <div className="grid grid-cols-4">
         {notes}
       </div>
     </div>
