@@ -67,6 +67,7 @@ function HomePage() {
 	
 	const notes = Notes.data.map((note) => (
 		<div key={note.id} className="post-it">
+			<img className="w-10 h-10" src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAA5JREFUeNpiYGBgAAgwAAAEAAGbA+oJAAAAAElFTkSuQmCC" />
 			<p><strong>Note</strong></p>
 			<p>{note.note}</p>
 			<button className="delete-button" onClick={() => onDelete(note.id)}>
