@@ -18,4 +18,4 @@ COPY . .
 CMD [ "npm", "run", "dev" ]
 
 # Exposing server port
-EXPOSE 3000
+EXPOSE 5173

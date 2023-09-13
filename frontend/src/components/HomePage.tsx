@@ -2,24 +2,20 @@ import { SyntheticEvent, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 
 
-interface HomePageProps {
-	children: React.ReactNode;
-}
-
 type Note = {
 	id: number;
 	note: string;
 };
 	
 
-function HomePage({ children }: HomePageProps) {
+function HomePage() {
 
 	let [newNoteInput, setNewNoteInput] = useState('');
 
 	const queryClient = useQueryClient();
 	const Notes = useQuery<Array<Note>>(['notes'], 
 		() => {
-			return fetch('http://localhost:3000/getNotes')
+			return fetch('http://localhost:8080/getNotes')
 			.then((response) => response.json())
 			.then((data) => data)
 			.catch((error) => {
@@ -30,7 +26,7 @@ function HomePage({ children }: HomePageProps) {
 	});
 	const addMutation = useMutation((formData: string) => {
 		console.log(formData)
-		return fetch('http://localhost:3000/addNote', {
+		return fetch('http://localhost:8080/addNote', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
@@ -47,7 +43,7 @@ function HomePage({ children }: HomePageProps) {
 	);
 
 	const delMutation = useMutation((id: number) => {
-		return fetch(`http://localhost:3000/removeNote?id=${id}`)
+		return fetch(`http://localhost:8080/removeNote?id=${id}`)
 			.then((response) => response.json())
 		},
 		{
@@ -90,7 +86,7 @@ function HomePage({ children }: HomePageProps) {
 		  value={newNoteInput}
 		  onChange={(event) => setNewNoteInput(event.target.value)}
         />
-        <button type="submit">Add Note</button>
+        <button type="submit">Add Noteeeee</button>
       </form>
       <div className="note-list">
         {notes}
