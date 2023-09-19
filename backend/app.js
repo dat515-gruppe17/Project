@@ -19,18 +19,43 @@ const dbPool = mysql.createPool({
 
 const db = dbPool.promise();
 
-db.query(
-    `CREATE TABLE IF NOT EXISTS notes (
-        id INT PRIMARY KEY AUTO_INCREMENT,
-        note TEXT NOT NULL
-    );`
-)
+
+
+async function RecreateTables() {//DropTables() {
+    try {
+        await db.execute('DROP TABLE IF EXISTS notes');
+        console.log('Table dropped successfully');
+        CreateTables()
+    } catch (e) {
+        console.error('Error dropping table:', e);
+    }
+}
+
+async function CreateTables() {
+    try {
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS notes (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                title VARCHAR(255) NOT NULL,
+                color VARCHAR(255) NOT NULL,
+                note TEXT NOT NULL,
+                rotation INT DEFAULT 0,
+                xFraction FLOAT,
+                yFraction FLOAT
+            );
+        `);
+        console.log('Table created successfully');
+    } catch (e) {
+        console.error('Error creating table:', e);
+    }
+}
+
+console.log("Uncomment the following function if you wish to have a persistent database");
+RecreateTables();
 
 const PORT = 8080;
 
-// Global variables
-let notes = [];
-let noteId = 0;
+
     
 app.get('/', (req, res) => {
     res.send('Hello, World!');
@@ -44,22 +69,26 @@ app.get('/getNotes', async (req, res) => {
         console.error(e);
         return res.status(500).send({error: 'Error'});
     }
-    
 });
 
 
 
+
+
 app.post('/addNote', async (req, res) => {
-    const note = req.body.note;
+    const { title, color, note, rotation} = req.body;
+    // Check for missing or empty values
+    if (!title || !color || !note || !rotation) {
+        return res.status(400).json({ error: 'Title, color, and note are required fields.' });
+    }
     try {
-        await db.execute('INSERT INTO notes (note) VALUES (?)', [note]);
+        await db.execute('INSERT INTO notes (note, title, color, rotation) VALUES (?, ?, ?, ?)', [note, title, color, rotation]);
         const [rows] = await db.query('SELECT * FROM notes');
         return res.send(rows);
     } catch (e) {
         console.error(e);
         return res.status(500).send({error: 'Error'});
     }
-    
 });
 
 
@@ -74,6 +103,25 @@ app.get('/removeNote', async (req, res) => {
         return res.status(500).send({error: 'Error'});
     }
 });
+
+
+app.post('/moveNote', async (req, res) => {
+    const { id, xFraction, yFraction } = req.body;
+    if (!id || !xFraction || !yFraction ) {
+        return res.status(400).json({ error: 'id, xFraction, and yFraction are required fields.' });
+    }
+    try {
+        console.log("adding to database");
+        await db.execute('UPDATE notes SET xFraction = ?, yFraction = ? WHERE id = ?', [xFraction, yFraction, id]);
+        res.sendStatus(200); // Respond with a success status
+        console.log("added to database");
+
+    } catch(e) {
+        console.error(e);
+        return res.status(500).send({error: 'Error'});
+    }
+});
+
 
 
 app.listen(PORT, () => {

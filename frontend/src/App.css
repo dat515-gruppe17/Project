@@ -88,7 +88,8 @@
 .post-it:nth-child(5n) a {
   transform: rotate(5deg);
   position: relative;
-  top: -10px;
+  top: -10px;   
+  background: rgb(172, 211, 237);
 }
 
 
