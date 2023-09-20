@@ -50,12 +50,9 @@ function HomePage() {
 	});
 	
 	
-	
-	
-	
 	const addMutation = useMutation(async () => {
 		const randomColors = ['bg-yellow-200', 'bg-custom-blue', 'bg-custom-green','bg-custom-purple'];
-		const randomRotations = [-5, -6, -3, -4, -3, -2, -1, 1, 2, 3, 4, 5,];
+		const randomRotations = [-4, -3, -2, -1, -0, 1, 2, 3, 4];
 		const color = randomColors[Math.floor(Math.random() * randomColors.length)];
 		const rotation = randomRotations[Math.floor(Math.random() * randomRotations.length)];
 
@@ -76,9 +73,18 @@ function HomePage() {
 		},
 		{
 			onSuccess: (data) => {
+				if (data.error) {
+					alert(data.error);
+					return;
+				}
 				queryClient.setQueryData(['notes'], () => data);
 				setNewNoteInput('');
-			}
+			},
+
+			onError: (error) => {
+				alert(error);
+			},
+
 		}
 	);
 
@@ -111,8 +117,8 @@ function HomePage() {
 	function MoveNote(e: MouseEvent, draggableDiv: HTMLElement, offset: [number,number] = [0,0]) {
 		const mouseX = e.clientX;
 		const mouseY = e.clientY;
-		draggableDiv.style.left = (mouseX + offset[0]) + 'px';
-		draggableDiv.style.top  = (mouseY + offset[1]) + 'px';
+		draggableDiv.style.left = (mouseX + offset[0]-8) + 'px';
+		draggableDiv.style.top  = (mouseY + offset[1]-8) + 'px';
 	}
 
 	async function updateNotePos (noteData: NotePos) {
@@ -122,6 +128,34 @@ function HomePage() {
 				'Content-Type': 'application/json',
 			},
 			body: JSON.stringify(noteData)
+		});
+	}
+
+
+	async function editTitle(id: number, title: string) {
+		if (!title) {
+			return;
+		}
+		return await fetch('http://localhost:8080/editTitle', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({id: id, title: title})
+		});
+	}
+
+
+	async function editContent(id: number, content: string) {
+		if (!content) {
+			return;
+		}
+		return await fetch('http://localhost:8080/editContent', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({id: id, content: content})
 		});
 	}
 
@@ -152,16 +186,16 @@ function HomePage() {
 			
 			// Get the center position of the node
 			const rect = draggableDiv.getBoundingClientRect();
-			const centerX = rect.left //+ rect.width / 2;
-			const centerY = rect.top //+ rect.height / 2;
+			const posX = rect.left //+ rect.width / 2;
+			const posY = rect.top//+ rect.height / 2;
 
 			// Get the window size
 			const windowWidth = window.innerWidth;
   			const windowHeight = window.innerHeight;
 
 			 // Calculate the fractions
-			const xFraction = centerX / windowWidth;
-			const yFraction = centerY / windowHeight;
+			const xFraction = posX / windowWidth;
+			const yFraction = posY / windowHeight;
 			
 			updateNotePos({
 				id: id,
@@ -217,8 +251,44 @@ function HomePage() {
 				isDragging.current[note.id] = true;
 			}}
 			>
-			<p className={`text-center font-bold text-2xl`} >{note.title}</p>
-			<p className={`font-Reenie`} >{note.note}</p>
+			<p 
+				suppressContentEditableWarning={true}
+				contentEditable="true" 
+
+				onMouseDown={(e) => {
+					e.stopPropagation(); // Prevent event propagation to the div
+				}}
+				onInput={e => {
+					e.stopPropagation(); // Prevent event propagation to the div
+					const draggableDiv = e.currentTarget as HTMLElement;
+					if (draggableDiv.textContent) {
+						draggableDiv.textContent = draggableDiv.textContent.replace(/\n/g, '');
+						editTitle(note.id, e.currentTarget.textContent!);
+					}	
+				}}
+				className={`text-center font-bold text-2xl`} >{note.title}
+			</p>
+			
+			<p
+				
+
+				suppressContentEditableWarning={true}
+				contentEditable="true" 
+
+				onMouseDown={(e) => {
+					e.stopPropagation(); // Prevent event propagation to the div
+				}}
+				onInput={e => {
+					e.stopPropagation(); // Prevent event propagation to the div
+					const draggableDiv = e.currentTarget as HTMLElement;
+					if (draggableDiv.textContent) {
+						draggableDiv.textContent = draggableDiv.textContent.replace(/\n/g, '');
+						editContent(note.id, e.currentTarget.textContent!);
+					}	
+				}}
+				className={`font-Reenie`} >{note.note}
+			</p>
+
 
 			<button 
 				className="delete-button absolute right-0 top-0" 

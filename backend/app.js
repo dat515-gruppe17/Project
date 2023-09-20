@@ -88,7 +88,8 @@ app.post('/addNote', async (req, res) => {
     const { title, color, note, rotation} = req.body;
     // Check for missing or empty values
     if (!title || !color || !note || !rotation) {
-        return res.status(400).json({ error: 'Title, color, and note are required fields.' });
+        //return res.send({ error: 'Title, color, and note are required fields.' })
+        return res.status(500).json({ error: 'Title, color, and note are required fields.' });
     }
     try {
         await db.execute('INSERT INTO notes (note, title, color, rotation) VALUES (?, ?, ?, ?)', [note, title, color, rotation]);
@@ -99,6 +100,43 @@ app.post('/addNote', async (req, res) => {
         return res.status(500).send({error: 'Error'});
     }
 });
+
+
+
+app.post('/editTitle', async (req, res) => {
+    const { title, id} = req.body;
+    // Check for missing or empty values
+    if (!title || !id) {
+        return res.status(500).json({ error: 'Title and id are required fields.' });
+    }
+    try {
+        await db.execute('UPDATE notes SET title = ? WHERE id = ?', [title, id]);
+        const [rows] = await db.query('SELECT * FROM notes');
+        return res.send(rows);
+    } catch (e) {
+        console.error(e);
+        return res.status(500).send({error: 'Error'});
+    }
+});
+
+
+app.post('/editContent', async (req, res) => {
+    const { content, id} = req.body;
+    // Check for missing or empty values
+    if (!content || !id) {
+        return res.status(500).json({ error: 'Content and id are required fields.' });
+    }
+    try {
+        await db.execute('UPDATE notes SET note = ? WHERE id = ?', [content, id]);
+        const [rows] = await db.query('SELECT * FROM notes');
+        return res.send(rows);
+    } catch (e) {
+        console.error(e);
+        return res.status(500).send({error: 'Error'});
+    }
+});
+
+
 
 
 app.get('/removeNote', async (req, res) => {
@@ -120,11 +158,8 @@ app.post('/moveNote', async (req, res) => {
         return res.status(400).json({ error: 'id, xFraction, and yFraction are required fields.' });
     }
     try {
-        console.log("adding to database");
         await db.execute('UPDATE notes SET xFraction = ?, yFraction = ? WHERE id = ?', [xFraction, yFraction, id]);
         res.sendStatus(200); // Respond with a success status
-        console.log("added to database");
-
     } catch(e) {
         console.error(e);
         return res.status(500).send({error: 'Error'});
