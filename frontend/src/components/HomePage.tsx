@@ -76,6 +76,10 @@ function HomePage() {
 		},
 		{
 			onSuccess: (data) => {
+				if (data.error) {
+					alert(data.error);
+					return;
+				}
 				queryClient.setQueryData(['notes'], () => data);
 				setNewNoteInput('');
 			}
@@ -89,6 +93,10 @@ function HomePage() {
 		},
 		{
 			onSuccess: (data) => {
+				if (data.error) {
+					alert(data.error);
+					return;
+				}
 				queryClient.setQueryData(['notes'], () => data);
 			}
 		}
