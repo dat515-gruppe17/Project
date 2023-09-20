@@ -30,7 +30,6 @@ async function RecreateTables() {//DropTables() {
         console.error('Error dropping table:', e);
     }
 }
-
 async function CreateTables() {
     try {
         await db.query(`
@@ -50,8 +49,6 @@ async function CreateTables() {
     }
 }
 
-console.log("Uncomment the following function if you wish to have a persistent database");
-RecreateTables();
 
 const PORT = 8080;
 
@@ -61,7 +58,19 @@ app.get('/', (req, res) => {
     res.send('Hello, World!');
 });
 
+
+if (process.env.DEV == 1){
+    app.get('/DeleteDatabase', async (req, res) => {
+        console.log("deleting database");
+        RecreateTables();
+    });
+}
+
+
+
+
 app.get('/getNotes', async (req, res) => {
+    //console.log("getting notes");
     try {
         const [rows] = await db.query('SELECT * FROM notes');
         return res.send(rows);

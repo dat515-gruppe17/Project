@@ -15,7 +15,7 @@ COPY package.json ./
 RUN npm install
 
 # Starting our application
-CMD [ "node", "app.js" ]
+CMD [ "node", "--watch", "app.js" ]
 
 # Exposing server port
 EXPOSE 8080
