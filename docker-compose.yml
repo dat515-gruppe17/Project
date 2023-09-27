@@ -30,7 +30,7 @@ services:
     tty: true
     build:
       context: ./frontend/
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.development
     ports:
       - "5173:5173"
     volumes:
@@ -42,7 +42,7 @@ services:
     tty: true
     build:
       context: ./backend/
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.development
     ports:
       - "8080:8080"
     volumes:
