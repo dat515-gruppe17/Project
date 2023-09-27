@@ -37,7 +37,7 @@ function HomePage() {
 	
 	// Set the host
 	const parsedUrl = new URL(window.location.href);
-	const Host = 'http://'+parsedUrl.hostname+':8080';
+	const Host = 'http://'+parsedUrl.hostname+'/api';
 
 
 	const queryClient = useQueryClient();

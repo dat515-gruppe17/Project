@@ -51,7 +51,7 @@ async function CreateTables() {
 
 
 const PORT = 8080;
-
+CreateTables();
 
     
 app.get('/', (req, res) => {
