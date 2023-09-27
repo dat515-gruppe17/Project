@@ -1,7 +1,5 @@
 import { SyntheticEvent, useState, useEffect, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
-import { parseFilterArgs } from 'react-query/types/core/utils';
-
 
 type Note = {
 	id: number;
@@ -34,12 +32,22 @@ type NotePos = {
 function HomePage() {
 	
 	const isDragging = useRef<{ [key: number]: boolean }>({});
-	let [newNoteInput, setNewNoteInput] = useState('');
+	const [newNoteInput, setNewNoteInput] = useState('');
 	
+	
+	// Set the host
+	const parsedUrl = new URL(window.location.href);
+	const Host = 'http://'+parsedUrl.hostname+':8080';
+
+
 	const queryClient = useQueryClient();
 	const Notes = useQuery<Array<Note>>(['notes'], 
 		async () => {
-			return fetch('http://localhost:8080/getNotes')
+
+
+			console.log(Host+'/getNotes');
+
+			return fetch(Host+'/getNotes')
 			.then((response) => response.json())
 			.then((data) => data)
 			.catch((error) => {
@@ -62,8 +70,8 @@ function HomePage() {
 			color: color,
 			rotation: rotation,
 		};
-
-		return await fetch('http://localhost:8080/addNote', {
+		
+		return await fetch(Host+'/addNote', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
@@ -90,7 +98,7 @@ function HomePage() {
 
 
 	const delMutation = useMutation(async (id: number) => {
-		return await fetch(`http://localhost:8080/removeNote?id=${id}`)
+			return await fetch(`${Host}/removeNote?id=${id}`)
 			.then((response) => response.json())
 		},
 		{
@@ -126,7 +134,7 @@ function HomePage() {
 	}
 
 	async function updateNotePos (noteData: NotePos) {
-		return await fetch('http://localhost:8080/moveNote', {
+		return await fetch(Host+'/moveNote', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -140,7 +148,7 @@ function HomePage() {
 		if (!title) {
 			return;
 		}
-		return await fetch('http://localhost:8080/editTitle', {
+		return await fetch(Host+'/editTitle', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -154,7 +162,7 @@ function HomePage() {
 		if (!content) {
 			return;
 		}
-		return await fetch('http://localhost:8080/editContent', {
+		return await fetch(Host+'/editContent', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
