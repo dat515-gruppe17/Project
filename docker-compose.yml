@@ -5,7 +5,7 @@ services:
     container_name: proxy
     build:
       context: ./proxy
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.development
     ports:
       - "80:80"
     volumes:
