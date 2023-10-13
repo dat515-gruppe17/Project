@@ -1,5 +1,6 @@
 import { SyntheticEvent, useState, useEffect, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { BACKEND_URL } from '../config.js';
 
 type Note = {
 	id: number;
@@ -36,8 +37,7 @@ function HomePage() {
 	
 	
 	// Set the host
-	const parsedUrl = new URL(window.location.href);
-	const Host = 'http://'+parsedUrl.hostname+'/api';
+	const Host = BACKEND_URL;
 
 
 	const queryClient = useQueryClient();
@@ -298,7 +298,7 @@ function HomePage() {
 						editContent(note.id, e.currentTarget.textContent!);
 					}	
 				}}
-				className={`font-Reenie`} >{note.note}
+				className={`font-Reenie text-2xl`} >{note.note}
 			</p>
 
 
@@ -324,8 +324,8 @@ function HomePage() {
 	
 	return (
     <div className="flex flex-col items-center w-full">
-      <h1 className='text-2xl font-bold text-center'>My Notes</h1>
-      <form className="p-2 flex w-96 content-center items-center" onSubmit={onSubmit}>
+      <h1 className='text-4xl font-bold text-center m-4'>My Notes</h1>
+      <form className="p-2 flex w-96 content-center items-center gap-4" onSubmit={onSubmit}>
         <textarea
 		className='border-2 rounded w-full h-20'
 		  name="note"
